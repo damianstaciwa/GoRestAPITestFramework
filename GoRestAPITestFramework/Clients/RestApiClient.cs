@@ -7,9 +7,6 @@ public class RestApiClient
     private readonly RestClient _client;
 
     public IUserRepository Users { get; }
-    public IPostRepository Posts { get; }
-    public ICommentRepository Comments { get; }
-    public ITodoItemRepository TodoItems { get; }
     public IUserPostsRepository UserPosts { get; }
     public IPostCommentsRepository PostComments { get; }
     public IUserTodoItemRepository UserTodoItems { get; }
@@ -24,9 +21,6 @@ public class RestApiClient
         _client.AddDefaultHeader("Authorization", $"Bearer {AccessToken}");
 
         Users = new UserRepository(_client);
-        Posts = new PostRepository(_client);
-        Comments = new CommentRepository(_client);
-        TodoItems = new TodoItemRepository(_client);
         UserPosts = new UserPostRepository(_client);
         PostComments = new PostCommentRepository(_client);
         UserTodoItems = new UserTodoItemRepository(_client);

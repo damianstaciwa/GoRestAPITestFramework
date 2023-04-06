@@ -37,6 +37,29 @@ namespace GoRestAPITestFramework.Repositories
             HandleResponse(response);
         }
 
+        public async Task UpdateUserTodoItemAsync(int userId, int todoId, TodoItem todo)
+        {
+            var request = new RestRequest($"users/{userId}/todos/{todoId}", Method.Put);
+            request.AddJsonBody(todo);
+            var response = await _client.ExecuteAsync(request);
+            HandleResponse(response);
+        }
+
+        public async Task UpdateUserTodoItemPartiallyAsync(int userId, int todoId, object partialUpdate)
+        {
+            var request = new RestRequest($"users/{userId}/todos/{todoId}", Method.Patch);
+            request.AddJsonBody(partialUpdate);
+            var response = await _client.ExecuteAsync(request);
+            HandleResponse(response);
+        }
+
+        public async Task DeleteUserTodoItemAsync(int userId, int todoId)
+        {
+            var request = new RestRequest($"users/{userId}/todos/{todoId}", Method.Delete);
+            var response = await _client.ExecuteAsync(request);
+            HandleResponse(response);
+        }
+
         private void HandleResponse(RestResponse response)
         {
             if (!response.IsSuccessful)
