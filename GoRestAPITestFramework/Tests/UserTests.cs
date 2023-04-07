@@ -33,7 +33,6 @@ namespace GoRestAPITestFramework
             users.Should().NotBeNullOrEmpty();
 
             var createdUser = users.Find(u => u.Email == user.Email);
-
             createdUser.Should().NotBeNull();
             createdUser.Name.Should().BeEquivalentTo(user.Name);
             createdUser.Gender.Should().BeEquivalentTo(user.Gender);
