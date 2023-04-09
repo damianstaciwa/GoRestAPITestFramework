@@ -50,6 +50,14 @@ namespace GoRestAPITestFramework
             createdPost.Should().NotBeNull();
             createdPost.User_Id.Should().Be(userId);
             createdPost.Body.Should().BeEquivalentTo(post.Body);
+
+            await apiClient.Users.DeleteUserAsync(userId);
+
+            var updatedUserList = await apiClient.Users.GetUsersAsync();
+            updatedUserList.Should().NotContain(user);
+
+            userPosts = await apiClient.UserPosts.GetUserPostsAsync(userId);
+            userPosts.Count.Should().Be(0);
         }
     }
 }
