@@ -15,7 +15,7 @@ namespace GoRestAPITestFramework
         }
 
         [Test]
-        public async Task FullUserCRUDTest()
+        public async Task CreateUserTest()
         {
             var emailPrefix = DateTime.Now.ToString("ddMMyyyyHHmmss");
 
@@ -37,38 +37,72 @@ namespace GoRestAPITestFramework
             createdUser.Name.Should().BeEquivalentTo(user.Name);
             createdUser.Gender.Should().BeEquivalentTo(user.Gender);
             createdUser.Status.Should().BeEquivalentTo(user.Status);
+        }
 
-            createdUser.Status = "inactive";
+        [Test]
+        public async Task UpdateUserTest()
+        {
+            var user = await GetTestUserAsync();
 
-            await apiClient.Users.UpdateUserAsync(createdUser.Id, createdUser);
+            user.Status = "inactive";
+            await apiClient.Users.UpdateUserAsync(user.Id, user);
 
-            users = await apiClient.Users.GetUsersAsync();
+            var users = await apiClient.Users.GetUsersAsync();
             users.Should().NotBeNullOrEmpty();
 
-            var updatedUser = users.Find(u => u.Email == createdUser.Email);
+            var updatedUser = users.Find(u => u.Email == user.Email);
             updatedUser.Should().NotBeNull();
-            updatedUser.Status.Should().BeEquivalentTo(createdUser.Status);
+            updatedUser.Status.Should().BeEquivalentTo(user.Status);
+        }
 
-            string newEmail = $"{emailPrefix}updated@gmail.com";
+        [Test]
+        public async Task UpdateUserPartiallyTest()
+        {
+            var newEmailPrefix = DateTime.Now.ToString("ddMMyyyyHHmmss");
 
-            object partialUserUpdateData = new
-            {
-                Email = newEmail
-            };
+            var user = await GetTestUserAsync();
 
-            await apiClient.Users.UpdateUserPartiallyAsync(updatedUser.Id, partialUserUpdateData);
+            string newEmail = $"{newEmailPrefix}updated@gmail.com";
 
-            users = await apiClient.Users.GetUsersAsync();
+            object partialUserUpdateData = new { Email = newEmail };
+
+            await apiClient.Users.UpdateUserPartiallyAsync(user.Id, partialUserUpdateData);
+
+            var users = await apiClient.Users.GetUsersAsync();
             users.Should().NotBeNullOrEmpty();
 
             var partiallyUpdatedUser = users.Find(u => u.Email == newEmail);
             partiallyUpdatedUser.Should().NotBeNull();
             partiallyUpdatedUser.Email.Should().Be(newEmail);
+        }
 
-            await apiClient.Users.DeleteUserAsync(partiallyUpdatedUser.Id);
+        [Test]
+        public async Task DeleteUserTest()
+        {
+            var user = await GetTestUserAsync();
+
+            await apiClient.Users.DeleteUserAsync(user.Id);
 
             var updatedUserList = await apiClient.Users.GetUsersAsync();
-            updatedUserList.Should().NotContain(partiallyUpdatedUser);
+            updatedUserList.Should().NotContain(user);
+        }
+
+        private async Task<User> GetTestUserAsync()
+        {
+            var emailPrefix = DateTime.Now.ToString("ddMMyyyyHHmmss");
+
+            var user = new User
+            {
+                Name = "Test User",
+                Email = $"{emailPrefix}@gmail.com",
+                Gender = "Male",
+                Status = "active"
+            };
+
+            await apiClient.Users.CreateUserAsync(user);
+            var users = await apiClient.Users.GetUsersAsync();
+
+            return users.Find(u => u.Email == user.Email);
         }
     }
 }
