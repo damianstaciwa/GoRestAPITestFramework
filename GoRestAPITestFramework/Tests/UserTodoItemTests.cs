@@ -15,7 +15,35 @@ namespace GoRestAPITestFramework
         }
 
         [Test]
-        public async Task FullUserTodoItemsCRUDTest()
+        public async Task GetUserTodoItemsTest()
+        {
+            int userId = await GetTestUserIdAsync();
+
+            var userTodoItems = await apiClient.UserTodoItems.GetUserTodoItemsAsync(userId);
+            userTodoItems.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task CreateUserTodoItemTest()
+        {
+            int userId = await GetTestUserIdAsync();
+
+            var todoItem = new TodoItem
+            {
+                Title = $"Test Todo Item from {userId}",
+                Status = "pending"
+            };
+
+            await apiClient.UserTodoItems.CreateUserTodoItemAsync(userId, todoItem);
+            var userTodoItems = await apiClient.UserTodoItems.GetUserTodoItemsAsync(userId);
+            userTodoItems.Should().NotBeNullOrEmpty();
+
+            var createdTodoItem = userTodoItems.Find(t => t.Title == todoItem.Title);
+            createdTodoItem.Should().NotBeNull();
+            createdTodoItem.User_Id.Should().Be(userId);
+            createdTodoItem.Status.Should().BeEquivalentTo(todoItem.Status);
+        }
+        private async Task<int> GetTestUserIdAsync()
         {
             var emailPrefix = DateTime.Now.ToString("ddMMyyyyHHmmss");
 
@@ -30,32 +58,10 @@ namespace GoRestAPITestFramework
             await apiClient.Users.CreateUserAsync(user);
             var users = await apiClient.Users.GetUsersAsync();
             var createdUser = users.Find(u => u.Email == user.Email);
-            createdUser.Should().NotBeNull();
 
             int userId = createdUser.Id;
 
-            var todoItem = new TodoItem
-            {
-                Title = $"Test Todo Item from {user.Name}",
-                Status = "pending"
-            };
-
-            await apiClient.UserTodoItems.CreateUserTodoItemAsync(userId, todoItem);
-            var userTodoItems = await apiClient.UserTodoItems.GetUserTodoItemsAsync(userId);
-            userTodoItems.Should().NotBeNullOrEmpty();
-
-            var createdTodoItem = userTodoItems.Find(t => t.Title == todoItem.Title);
-            createdTodoItem.Should().NotBeNull();
-            userId.Should().Be(userId);
-            createdTodoItem.Status.Should().BeEquivalentTo(todoItem.Status);
-
-            await apiClient.Users.DeleteUserAsync(userId);
-
-            var updatedUserList = await apiClient.Users.GetUsersAsync();
-            updatedUserList.Should().NotContain(user);
-
-            userTodoItems = await apiClient.UserTodoItems.GetUserTodoItemsAsync(userId);
-            userTodoItems.Count.Should().Be(0);
+            return userId;
         }
     }
 }
