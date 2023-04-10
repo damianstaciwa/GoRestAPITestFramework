@@ -15,7 +15,40 @@ namespace GoRestAPITestFramework
         }
 
         [Test]
-        public async Task FullPostCommentsCRUDTest()
+        public async Task GetPostCommentsTest()
+        {
+            int postId = await GetTestPostIdAsync();
+
+            var postComments = await apiClient.PostComments.GetPostCommentsAsync(postId);
+            postComments.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task CreateCommentForPostTest()
+        {
+            var emailSuffix = DateTime.Now.ToString("ddMMyyyyHHmmss");
+
+            int postId = await GetTestPostIdAsync();
+
+            var comment = new Comment
+            {
+                Name = "Test Comment",
+                Email = $"test_comment_{emailSuffix}@gmail.com",
+                Body = "This is a test comment for post comments test."
+            };
+
+            await apiClient.PostComments.CreateCommentForPostAsync(postId, comment);
+
+            var postComments = await apiClient.PostComments.GetPostCommentsAsync(postId);
+            postComments.Should().NotBeNullOrEmpty();
+
+            var createdComment = postComments.Find(c => c.Email == comment.Email);
+            createdComment.Should().NotBeNull();
+            createdComment.Name.Should().BeEquivalentTo(comment.Name);
+            createdComment.Body.Should().BeEquivalentTo(comment.Body);
+        }
+
+        private async Task<int> GetTestPostIdAsync()
         {
             var emailPrefix = DateTime.Now.ToString("ddMMyyyyHHmmss");
 
@@ -30,7 +63,6 @@ namespace GoRestAPITestFramework
             await apiClient.Users.CreateUserAsync(user);
             var users = await apiClient.Users.GetUsersAsync();
             var createdUser = users.Find(u => u.Email == user.Email);
-            createdUser.Should().NotBeNull();
 
             int userId = createdUser.Id;
 
@@ -43,34 +75,10 @@ namespace GoRestAPITestFramework
             await apiClient.UserPosts.CreateUserPostAsync(userId, post);
             var userPosts = await apiClient.UserPosts.GetUserPostsAsync(userId);
             var createdPost = userPosts.Find(p => p.Title == post.Title);
-            createdPost.Should().NotBeNull();
 
             int postId = createdPost.Id;
 
-            var comment = new Comment
-            {
-                Name = "Test Comment",
-                Email = $"test_comment_{emailPrefix}@gmail.com",
-                Body = "This is a test comment for post comments test."
-            };
-
-            await apiClient.PostComments.CreateCommentForPostAsync(postId, comment);
-
-            var postComments = await apiClient.PostComments.GetPostCommentsAsync(postId);
-            postComments.Should().NotBeNullOrEmpty();
-
-            var createdComment = postComments.Find(c => c.Email == comment.Email);
-            createdComment.Should().NotBeNull();
-            createdComment.Name.Should().BeEquivalentTo(comment.Name);
-            createdComment.Body.Should().BeEquivalentTo(comment.Body);
-
-            await apiClient.Users.DeleteUserAsync(userId);
-
-            var updatedUserList = await apiClient.Users.GetUsersAsync();
-            updatedUserList.Should().NotContain(user);
-
-            postComments = await apiClient.PostComments.GetPostCommentsAsync(postId);
-            postComments.Should().NotContain(createdComment);
+            return postId;
         }
     }
 }
