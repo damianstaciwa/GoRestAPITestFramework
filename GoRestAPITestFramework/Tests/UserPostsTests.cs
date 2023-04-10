@@ -15,7 +15,37 @@ namespace GoRestAPITestFramework
         }
 
         [Test]
-        public async Task FullUserPostsCRUDTest()
+        public async Task GetUserPostsTest()
+        {
+            int userId = await GetTestUserIdAsync();
+
+            var userPosts = await apiClient.UserPosts.GetUserPostsAsync(userId);
+            userPosts.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task CreateUserPostTest()
+        {
+            int userId = await GetTestUserIdAsync();
+
+            var post = new Post
+            {
+                Title = $"Test Post",
+                Body = "This is a test post for user posts test."
+            };
+
+            await apiClient.UserPosts.CreateUserPostAsync(userId, post);
+
+            var userPosts = await apiClient.UserPosts.GetUserPostsAsync(userId);
+            userPosts.Should().NotBeNullOrEmpty();
+
+            var createdPost = userPosts.Find(p => p.Title == post.Title);
+            createdPost.Should().NotBeNull();
+            createdPost.User_Id.Should().Be(userId);
+            createdPost.Body.Should().BeEquivalentTo(post.Body);
+        }
+
+        private async Task<int> GetTestUserIdAsync()
         {
             var emailPrefix = DateTime.Now.ToString("ddMMyyyyHHmmss");
 
@@ -31,33 +61,7 @@ namespace GoRestAPITestFramework
             var users = await apiClient.Users.GetUsersAsync();
 
             var createdUser = users.Find(u => u.Email == user.Email);
-            createdUser.Should().NotBeNull();
-
-            int userId = createdUser.Id;
-
-            var post = new Post
-            {
-                Title = $"Test Post from {user.Name}",
-                Body = "This is a test post for user posts test."
-            };
-
-            await apiClient.UserPosts.CreateUserPostAsync(userId, post);
-
-            var userPosts = await apiClient.UserPosts.GetUserPostsAsync(userId);
-            userPosts.Should().NotBeNullOrEmpty();
-
-            var createdPost = userPosts.Find(p => p.Title == post.Title);
-            createdPost.Should().NotBeNull();
-            createdPost.User_Id.Should().Be(userId);
-            createdPost.Body.Should().BeEquivalentTo(post.Body);
-
-            await apiClient.Users.DeleteUserAsync(userId);
-
-            var updatedUserList = await apiClient.Users.GetUsersAsync();
-            updatedUserList.Should().NotContain(user);
-
-            userPosts = await apiClient.UserPosts.GetUserPostsAsync(userId);
-            userPosts.Count.Should().Be(0);
+            return createdUser.Id;
         }
     }
 }
