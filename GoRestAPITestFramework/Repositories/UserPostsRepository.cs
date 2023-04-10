@@ -34,15 +34,7 @@ namespace GoRestAPITestFramework.Repositories
             request.AddJsonBody(newPost);
             var response = await _client.ExecuteAsync(request);
 
-            HandleResponse(response);
-        }
-
-        private void HandleResponse(RestResponse response)
-        {
-            if (!response.IsSuccessful)
-            {
-                throw new InvalidOperationException($"Request failed: {response.StatusCode} - {response.StatusDescription}");
-            }
+            ApiUtils.HandleResponse(response);
         }
     }
 }

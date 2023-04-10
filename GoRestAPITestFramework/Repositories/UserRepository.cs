@@ -34,7 +34,7 @@ namespace GoRestAPITestFramework.Repositories
             request.AddJsonBody(user);
             var response = await _client.ExecuteAsync(request);
 
-            HandleResponse(response);
+            ApiUtils.HandleResponse(response);
         }
 
         public async Task UpdateUserAsync(int userId, User user)
@@ -43,7 +43,7 @@ namespace GoRestAPITestFramework.Repositories
             request.AddJsonBody(user);
             var response = await _client.ExecuteAsync(request);
 
-            HandleResponse(response);
+            ApiUtils.HandleResponse(response);
         }
 
         public async Task UpdateUserPartiallyAsync(int userId, object partialUpdate)
@@ -52,7 +52,7 @@ namespace GoRestAPITestFramework.Repositories
             request.AddJsonBody(partialUpdate);
             var response = await _client.ExecuteAsync(request);
 
-            HandleResponse(response);
+            ApiUtils.HandleResponse(response);
         }
 
         public async Task DeleteUserAsync(int userId)
@@ -60,15 +60,7 @@ namespace GoRestAPITestFramework.Repositories
             var request = new RestRequest($"users/{userId}", Method.Delete);
             var response = await _client.ExecuteAsync(request);
 
-            HandleResponse(response);
-        }
-
-        private void HandleResponse(RestResponse response)
-        {
-            if (!response.IsSuccessful)
-            {
-                throw new InvalidOperationException($"Request failed: {response.StatusCode} - {response.StatusDescription}");
-            }
+            ApiUtils.HandleResponse(response);
         }
     }
 }
