@@ -18,15 +18,20 @@ namespace GoRestAPITestFramework
         [Test]
         public async Task GetUserPostsTest()
         {
+            // arrange
             int userId = await GetTestUserIdAsync();
 
+            // act
             var userPosts = await apiClient.UserPosts.GetUserPostsAsync(userId);
+
+            // assert
             userPosts.Should().NotBeNull();
         }
 
         [Test]
         public async Task CreateUserPostTest()
         {
+            // arrange
             int userId = await GetTestUserIdAsync();
 
             var post = new Post
@@ -35,6 +40,7 @@ namespace GoRestAPITestFramework
                 Body = "This is a test post for user posts test."
             };
 
+            // act
             await apiClient.UserPosts.CreateUserPostAsync(userId, post);
 
             var userPosts = await apiClient.UserPosts.GetUserPostsAsync(userId);
@@ -42,6 +48,7 @@ namespace GoRestAPITestFramework
 
             var createdPost = userPosts.Find(p => p.Title == post.Title);
 
+            // assert
             using (new AssertionScope())
             {
                 createdPost.Should().NotBeNull();

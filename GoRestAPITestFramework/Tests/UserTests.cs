@@ -18,6 +18,7 @@ namespace GoRestAPITestFramework
         [Test]
         public async Task CreateUserTest()
         {
+            // arrange
             var emailPrefix = DateTime.Now.ToString("ddMMyyyyHHmmss");
 
             var user = new User
@@ -28,6 +29,7 @@ namespace GoRestAPITestFramework
                 Status = "active"
             };
 
+            // act
             await apiClient.Users.CreateUserAsync(user);
 
             var users = await apiClient.Users.GetUsersAsync();
@@ -35,6 +37,7 @@ namespace GoRestAPITestFramework
 
             var createdUser = users.Find(u => u.Email == user.Email);
 
+            // assert
             using (new AssertionScope())
             {
                 createdUser.Should().NotBeNull();
@@ -47,16 +50,19 @@ namespace GoRestAPITestFramework
         [Test]
         public async Task UpdateUserTest()
         {
+            // arrange
             var user = await GetTestUserAsync();
 
             user.Status = "inactive";
             await apiClient.Users.UpdateUserAsync(user.Id, user);
 
+            // act
             var users = await apiClient.Users.GetUsersAsync();
             users.Should().NotBeNullOrEmpty();
 
             var updatedUser = users.Find(u => u.Email == user.Email);
 
+            // assert
             using (new AssertionScope())
             {
                 updatedUser.Should().NotBeNull();
@@ -67,6 +73,7 @@ namespace GoRestAPITestFramework
         [Test]
         public async Task UpdateUserPartiallyTest()
         {
+            // arrange
             var newEmailPrefix = DateTime.Now.ToString("ddMMyyyyHHmmss");
 
             var user = await GetTestUserAsync();
@@ -75,6 +82,7 @@ namespace GoRestAPITestFramework
 
             object partialUserUpdateData = new { Email = newEmail };
 
+            // act
             await apiClient.Users.UpdateUserPartiallyAsync(user.Id, partialUserUpdateData);
 
             var users = await apiClient.Users.GetUsersAsync();
@@ -82,6 +90,7 @@ namespace GoRestAPITestFramework
 
             var partiallyUpdatedUser = users.Find(u => u.Email == newEmail);
 
+            // assert
             using (new AssertionScope())
             {
                 partiallyUpdatedUser.Should().NotBeNull();
@@ -92,11 +101,15 @@ namespace GoRestAPITestFramework
         [Test]
         public async Task DeleteUserTest()
         {
+            // arrange
             var user = await GetTestUserAsync();
 
+            // act
             await apiClient.Users.DeleteUserAsync(user.Id);
 
             var updatedUserList = await apiClient.Users.GetUsersAsync();
+
+            // assert
             updatedUserList.Should().NotContain(user);
         }
 

@@ -18,18 +18,21 @@ namespace GoRestAPITestFramework
         [Test]
         public async Task GetPostCommentsTest()
         {
+            //arrange
             int postId = await GetTestPostIdAsync();
 
+            //act
             var postComments = await apiClient.PostComments.GetPostCommentsAsync(postId);
+
+            //assert
             postComments.Should().NotBeNull();
         }
 
         [Test]
         public async Task CreateCommentForPostTest()
         {
+            // arrange
             var emailSuffix = DateTime.Now.ToString("ddMMyyyyHHmmss");
-
-            int postId = await GetTestPostIdAsync();
 
             var comment = new Comment
             {
@@ -38,6 +41,9 @@ namespace GoRestAPITestFramework
                 Body = "This is a test comment for post comments test."
             };
 
+            int postId = await GetTestPostIdAsync();
+
+            // act
             await apiClient.PostComments.CreateCommentForPostAsync(postId, comment);
 
             var postComments = await apiClient.PostComments.GetPostCommentsAsync(postId);
@@ -45,6 +51,7 @@ namespace GoRestAPITestFramework
 
             var createdComment = postComments.Find(c => c.Email == comment.Email);
 
+            // assert
             using (new AssertionScope())
             {
                 createdComment.Should().NotBeNull();

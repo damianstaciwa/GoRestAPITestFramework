@@ -18,15 +18,20 @@ namespace GoRestAPITestFramework
         [Test]
         public async Task GetUserTodoItemsTest()
         {
+            // arrange
             int userId = await GetTestUserIdAsync();
 
+            // act
             var userTodoItems = await apiClient.UserTodoItems.GetUserTodoItemsAsync(userId);
+
+            // asssert
             userTodoItems.Should().NotBeNull();
         }
 
         [Test]
         public async Task CreateUserTodoItemTest()
         {
+            // arrange
             int userId = await GetTestUserIdAsync();
 
             var todoItem = new TodoItem
@@ -35,12 +40,14 @@ namespace GoRestAPITestFramework
                 Status = "pending"
             };
 
+            // act
             await apiClient.UserTodoItems.CreateUserTodoItemAsync(userId, todoItem);
             var userTodoItems = await apiClient.UserTodoItems.GetUserTodoItemsAsync(userId);
             userTodoItems.Should().NotBeNullOrEmpty();
 
             var createdTodoItem = userTodoItems.Find(t => t.Title == todoItem.Title);
 
+            // assert
             using (new AssertionScope())
             {
                 createdTodoItem.Should().NotBeNull();
