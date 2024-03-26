@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentAssertions.Execution;
 using GoRestAPITestFramework.Models;
 using NUnit.Framework;
 
@@ -43,9 +44,13 @@ namespace GoRestAPITestFramework
             postComments.Should().NotBeNullOrEmpty();
 
             var createdComment = postComments.Find(c => c.Email == comment.Email);
-            createdComment.Should().NotBeNull();
-            createdComment.Name.Should().BeEquivalentTo(comment.Name);
-            createdComment.Body.Should().BeEquivalentTo(comment.Body);
+
+            using (new AssertionScope())
+            {
+                createdComment.Should().NotBeNull();
+                createdComment.Name.Should().BeEquivalentTo(comment.Name);
+                createdComment.Body.Should().BeEquivalentTo(comment.Body);
+            }
         }
 
         private async Task<int> GetTestPostIdAsync()

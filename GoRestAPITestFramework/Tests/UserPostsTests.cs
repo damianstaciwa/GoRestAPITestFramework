@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentAssertions.Execution;
 using GoRestAPITestFramework.Models;
 using NUnit.Framework;
 
@@ -40,9 +41,13 @@ namespace GoRestAPITestFramework
             userPosts.Should().NotBeNullOrEmpty();
 
             var createdPost = userPosts.Find(p => p.Title == post.Title);
-            createdPost.Should().NotBeNull();
-            createdPost.User_Id.Should().Be(userId);
-            createdPost.Body.Should().BeEquivalentTo(post.Body);
+
+            using (new AssertionScope())
+            {
+                createdPost.Should().NotBeNull();
+                createdPost.User_Id.Should().Be(userId);
+                createdPost.Body.Should().BeEquivalentTo(post.Body);
+            }
         }
 
         private async Task<int> GetTestUserIdAsync()

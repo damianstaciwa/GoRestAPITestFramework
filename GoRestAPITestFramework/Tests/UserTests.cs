@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentAssertions.Execution;
 using GoRestAPITestFramework.Models;
 using NUnit.Framework;
 
@@ -33,10 +34,14 @@ namespace GoRestAPITestFramework
             users.Should().NotBeNullOrEmpty();
 
             var createdUser = users.Find(u => u.Email == user.Email);
-            createdUser.Should().NotBeNull();
-            createdUser.Name.Should().BeEquivalentTo(user.Name);
-            createdUser.Gender.Should().BeEquivalentTo(user.Gender);
-            createdUser.Status.Should().BeEquivalentTo(user.Status);
+
+            using (new AssertionScope())
+            {
+                createdUser.Should().NotBeNull();
+                createdUser.Name.Should().BeEquivalentTo(user.Name);
+                createdUser.Gender.Should().BeEquivalentTo(user.Gender);
+                createdUser.Status.Should().BeEquivalentTo(user.Status);
+            }
         }
 
         [Test]
@@ -51,8 +56,12 @@ namespace GoRestAPITestFramework
             users.Should().NotBeNullOrEmpty();
 
             var updatedUser = users.Find(u => u.Email == user.Email);
-            updatedUser.Should().NotBeNull();
-            updatedUser.Status.Should().BeEquivalentTo(user.Status);
+
+            using (new AssertionScope())
+            {
+                updatedUser.Should().NotBeNull();
+                updatedUser.Status.Should().BeEquivalentTo(user.Status);
+            }
         }
 
         [Test]
@@ -72,8 +81,12 @@ namespace GoRestAPITestFramework
             users.Should().NotBeNullOrEmpty();
 
             var partiallyUpdatedUser = users.Find(u => u.Email == newEmail);
-            partiallyUpdatedUser.Should().NotBeNull();
-            partiallyUpdatedUser.Email.Should().Be(newEmail);
+
+            using (new AssertionScope())
+            {
+                partiallyUpdatedUser.Should().NotBeNull();
+                partiallyUpdatedUser.Email.Should().Be(newEmail);
+            }
         }
 
         [Test]

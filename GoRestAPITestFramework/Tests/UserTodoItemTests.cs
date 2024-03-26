@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentAssertions.Execution;
 using GoRestAPITestFramework.Models;
 using NUnit.Framework;
 
@@ -39,9 +40,13 @@ namespace GoRestAPITestFramework
             userTodoItems.Should().NotBeNullOrEmpty();
 
             var createdTodoItem = userTodoItems.Find(t => t.Title == todoItem.Title);
-            createdTodoItem.Should().NotBeNull();
-            createdTodoItem.User_Id.Should().Be(userId);
-            createdTodoItem.Status.Should().BeEquivalentTo(todoItem.Status);
+
+            using (new AssertionScope())
+            {
+                createdTodoItem.Should().NotBeNull();
+                createdTodoItem.User_Id.Should().Be(userId);
+                createdTodoItem.Status.Should().BeEquivalentTo(todoItem.Status);
+            }
         }
         private async Task<int> GetTestUserIdAsync()
         {
